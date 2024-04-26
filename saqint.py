@@ -208,6 +208,7 @@ def saquaia_run(benchmark, cleanup=True):
 
     # run saquaia
     command = f'java -jar {pwd}/saquaia-mvn-main/code/target/saquaia-jar-with-dependencies.jar -f {benchmark_file} -o {result_dir}'
+    print("cmd: ",command)
     os.system(command)
 
     # collect result
@@ -283,18 +284,44 @@ def main():
         "δ_pm" :  [0,100]
     }
 
+    valuation = {}
+    valuation["σ_bB"] = 0.000286697
+    valuation["σ_uB"] = 0.072024539
+    valuation["σ_bA"] = 0.000271042
+    valuation["σ_uA"] = 0.046011351
+    valuation["ρ_uA"] = 196.6094971
+    valuation["ρ_bA"] = 185.2874756
+    valuation["γ_A"] = 9.632446289
+    valuation["δ_mA"] = 8.591766357
+    valuation["δ_p"] = 1.00201416
+    valuation["ρ_uB"] = 379.8675537
+    valuation["ρ_bB"] = 104.9957275
+    valuation["γ_B"] = 10.09973145
+    valuation["δ_mB"] = 10.41592407
+    valuation["σ_uM"] = 1.389099121
+    valuation["σ_bM"] = 0.201980591
+    valuation["δ_pm"] = 89.55383301
+
+
+    
+
     # valuation is a dictionary of parameter-value pairs
-    valuation = {p:(domain[0]+domain[1])/2 for p,domain in param_domains.items()}
+    #valuation = {p:(domain[0]+domain[1])/2 for p,domain in param_domains.items()}
     
     # create benchmark template
     bf = BenchmarkFactory("prefix_",crn=crn,end_t=100,sims=1000,timeout=100000,repeat=1,seed=None,c=1.5)
+    #bf = BenchmarkFactory("prefix_",crn=crn,end_t=100,sims=10,timeout=100000,repeat=1,seed=None,c=1.5)
     
     benchmark = bf.new("suffix", "SSA", valuation)
     distribution,runtime = saquaia_run(benchmark)
+    #print(distribution.items())
+    json.dump(list(distribution.items()), open("ssa.json", "wt"))
     print("\n\n>> ", sum(distribution.values()),runtime)
     
     benchmark = bf.new("suffix", "SEG", valuation)
     distribution,runtime = saquaia_run(benchmark)
+    json.dump(list(distribution.items()), open("seg.json", "wt")
+                                       )
     print("\n\n>> ", sum(distribution.values()),runtime)
 
 main()
